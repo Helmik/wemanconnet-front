@@ -1,26 +1,65 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import MovieList from './components/movie-list/movie-list'
+import FilterBar from './components/filter-bar/filter-bar'
+import CustomModal from './components/custom-modal/custom-modal'
+
+import './App.css'
+
+export default class App extends Component {
+
+  constructor(props) {
+      super(props);
+
+      this.onMovieListCHange = this.onMovieListCHange.bind(this);
+      this.closeModal = this.closeModal.bind(this);
+
+      this.state = {
+          movies: [],
+          openModal: false
+      }
+  }
+
+  movieSelected = null;
+
+  onMovieListCHange = movies => {
+      this.setState({movies});
+  }
+
+  openDetails = (movie) => {
+    this.movieSelected = movie;
+    this.forceUpdate();
+    this.setState({
+        openModal: true
+    });
+    console.log(this.movieSelected.title);
+  }
+
+  addNewMovie = (movie) => {
+    this.movieSelected = null;
+    this.setState({
+        openModal: true
+    });
+  }
+
+  closeModal = () => {
+      this.movieSelected = undefined;
+      this.setState({
+          openModal: false
+      });
+  }
+
+  render() {
+    let moviesList = this.state.movies.map(movie => {
+        return <MovieList movie={movie} key={movie.id} onClick={this.openDetails}></MovieList>
+    });
+    return (
+        <div className="App">
+            <CustomModal props={ { movie: this.movieSelected, open: this.state.openModal, onCloseModal: this.closeModal } }></CustomModal>
+            <FilterBar props={{onChange: this.onMovieListCHange, onClick: this.addNewMovie }}></FilterBar>   
+            {moviesList}
+        </div>
+    );
+  }
+
 }
-
-export default App;
