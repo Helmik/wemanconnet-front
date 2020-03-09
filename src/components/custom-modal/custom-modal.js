@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Modal, Image, Form, TextArea, Rating, Button, Input } from 'semantic-ui-react'
 import _ from 'lodash'
 
-import { updateMovie } from '../../services/movie-service'
+import { updateMovie, deleteMovie, createMovie } from '../../services/movie-service'
 
 import './custom-modal.css'
 
@@ -17,6 +17,8 @@ export default class CustomModal extends Component{
         this.onChangeData = this.onChangeData.bind(this);
         this.resetMovie = this.resetMovie.bind(this);
         this.updateMovieFn = this.updateMovieFn.bind(this);
+        this.deleteMovieFn = this.deleteMovieFn.bind(this);
+        this.createMovieFn = this.createMovieFn.bind(this);
 
         this.state = {};
         this.resetMovie();
@@ -64,26 +66,32 @@ export default class CustomModal extends Component{
     }
 
     async updateMovieFn() {
-        console.log(this.movie);
         await updateMovie(this.movie);
+        window.location.reload();
+    }
+
+    async createMovieFn() {
+        await createMovie(this.movie);
+        window.location.reload();
+    }
+
+    async deleteMovieFn() {
+        await deleteMovie(this.movie);
         window.location.reload();
     }
 
     render() {
         let props = this.props.props;
 
-        if (this.movie && this.movie.id) {
+        if (this.movie && (this.movie.id || this.movie.title)) {
             console.log(1, this.movie);
-            this.movie = this.movie
         } else {
             this.movie = _.cloneDeep(props.movie);
-            console.log('props', _.cloneDeep(props.movie));
         }
 
         if (!Boolean(this.movie)) {
             this.resetMovie();
         }
-        console.log('move', this.movie);
         
         props.open ? this.openModal() : this.closeModal();
         let header = this.movie.title ? 'Movie Details' : 'New movie';
@@ -94,15 +102,15 @@ export default class CustomModal extends Component{
         this.movie.vote_average = this.movie.vote_average || 0;
 
         let buttons;
-        if (this.movie.title) {
+        if (this.movie.id) {
             buttons = [
-                <Button key="1" color='red'>Delete</Button>,
+                <Button key="1" onClick={this.deleteMovieFn} color='red'>Delete</Button>,
                 <Button key="2" onClick={this.updateMovieFn} color='blue'>Update</Button>,
                 <Button key="3" onClick={this.onCloseModal} color='orange'>Cancel</Button>
             ]
         } else {
             buttons = [
-                <Button key="1" color='blue'>Create</Button>,
+                <Button key="1" onClick={this.createMovieFn} color='blue'>Create</Button>,
                 <Button key="2" onClick={this.onCloseModal} color='orange'>Cancel</Button>
             ]
         }
